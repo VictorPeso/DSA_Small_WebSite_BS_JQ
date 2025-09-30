@@ -5,32 +5,61 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
     <script>
         $(document).ready(function(){
+            let fila_count = 0;
             $("#buscarbtn").click(function(){
-                alert("Text: " + $("#username").text());
+                $("#tablaBody").empty();
+                let url_api = "https://api.github.com/users/" + $("#username").val();
+                $.get(url_api, function(data, status){
+                    fila_count = data.public_repos;
+                    // alert(fila_count);
+                });
+                /*if (fila_count == 0){
+                    alert("Error en la obtención de datos. Posibles causas:\n - El usuario no tiene repositorios creados.\n - La API no responde.\n - El nombre de usuario es incorrecto.");
+                }*/
+                url_api = "https://api.github.com/users/" + $("#username").val() + "/repos";
+                $.get(url_api, function(data, status){
+                    let i = 0;
+                    let repo = "";
+                    while (i < fila_count) {
+                        repo = data[i];
+                        let fila = `
+                        <tr>
+                        <td>${repo.name}</td>
+                        <td>${repo.stargazers_count}</td>
+                        <td>${repo.description}</td>
+                        </tr>
+                        `;
+                        $("#tablaBody").append(fila);
+                        i++;
+                    }
+                });
             });
         });
     </script>
 </head>
 
-<body>
+<body class="min-vh-100">
+<div class="container-fluid p-5 my-5 bg-dark text-white">
+    <h1 class="text-center mb-5">Small website with Bootstrap and JQuery</h1>
+    <p class="text-center mb-1">Simple website with Bootstrap and JQuery implementation that gives dara from a given GitHub user.</p>
+</div>
+
 <div class="container">
-    <h2>Small website with Bootstrap and JQuery</h2>
-    <h4>By: Victor Peso Keyer</h4>
-    <p>Simple website with Bootstrap and JQuery implementation that gives dara from a given GitHub user.</p>
-    <p>Introduce the GitHub user name:</p>
     <form>
         <div class="form-group">
-            <label for="username">Name:</label>
+            <label for="username">GitHub Username:</label>
             <input type="text" name="username" id="username" class="form-control">
         </div>
         <div class="form-group">
             <button type="button" id="buscarbtn" class="btn btn-info">Search</button>
         </div>
     </form>
+
     <table class="table table-striped table-bordered">
         <thead>
         <tr>
@@ -39,26 +68,12 @@
             <th>Description</th>
         </tr>
         </thead>
-        <tbody>
-        <tr>
-            <td>John</td>
-            <td>Doe</td>
-            <td>john@example.com</td>
-        </tr>
-        <tr>
-            <td>Mary</td>
-            <td>Moe</td>
-            <td>mary@example.com</td>
-        </tr>
-        <tr>
-            <td>July</td>
-            <td>Dooley</td>
-            <td>july@example.com</td>
-        </tr>
+        <tbody id="tablaBody">
         </tbody>
     </table>
 </div>
-
-
 </body>
+<footer class="bg-dark text-white text-center py-3 fixed-bottom">
+    <p class="mb-0">Created by Victor Peso Keyer as an assignment for UPC-EETAC-DSA.</p>
+</footer>
 </html>
